@@ -1,9 +1,9 @@
 import { View, Text, FlatList, RefreshControl } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchInput from '../../components/SearchInput'
 import EmptyState from '../../components/EmptyState'
-import { getAllPosts, getSavedVideos } from '../../lib/appwrite'
+import { getSavedVideos } from '../../lib/appwrite'
 import useAppwrite from '../../lib/useAppwrite'
 import VideoCard from '../../components/VideoCard'
 import { useFocusEffect } from 'expo-router'
@@ -13,9 +13,6 @@ const Bookmark = () => {
   const { data: posts, refetch} = useAppwrite(getSavedVideos)
   const [refreshing, setRefreshing] = useState(false)
   
-  const [SavedData, setSavedData] = useState(posts)
-  const [filtredData, setfiltredData] = useState(null)
-
   const onRefresh = async () => {
     setRefreshing(true)
     await refetch()
@@ -27,7 +24,6 @@ const Bookmark = () => {
       onRefresh();
     }, [])
   );
-
   return (
     <SafeAreaView className="bg-primary-default h-full">
       <FlatList 
@@ -36,7 +32,7 @@ const Bookmark = () => {
         renderItem={({ item }) => (
           <VideoCard 
             video={item}
-            saved={item.saved}
+            savedInfo={item.saved}
           />
         )}
         ListHeaderComponent={() => (

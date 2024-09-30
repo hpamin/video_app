@@ -1,5 +1,5 @@
 import { View, Text, FlatList, RefreshControl } from 'react-native'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchInput from '../../components/SearchInput'
 import Trending from '../../components/Trending'
@@ -9,6 +9,7 @@ import { getAllPosts, getLatestPosts } from '../../lib/appwrite'
 import useAppwrite from '../../lib/useAppwrite'
 import VideoCard from '../../components/VideoCard'
 import { useGlobalContext } from '../../context/GlobalProvider'
+import { useFocusEffect } from 'expo-router'
 
 const Home = () => {
 
@@ -18,12 +19,18 @@ const Home = () => {
   const { data: latestPosts } = useAppwrite(getLatestPosts)
   const [refreshing, setRefreshing] = useState(false)
   
+  const {first} = useGlobalContext()
+  
   const onRefresh = async () => {
     setRefreshing(true)
     await refetch()
     setRefreshing(false)
   }
-
+useFocusEffect(
+    useCallback(() => {
+      onRefresh();
+    }, [])
+  );
   
   return (
     <SafeAreaView className="bg-primary-default h-full">
@@ -31,10 +38,11 @@ const Home = () => {
         data={posts}
         extraData={posts}
         keyExtractor={(item) => item.$id}
-        renderItem={({ item }) =>(
-          <VideoCard 
-            video={item}
-          />
+         renderItem={({ item }) => (
+            <VideoCard 
+              video={item}
+              savedInfo={item.saved}
+            />
         )}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
@@ -53,7 +61,7 @@ const Home = () => {
               <View className="w-full flex-1 pt-5 pb-8">
                 <Text className="text-gray-100 font-Poppins text-lg mb-3">
                   Latest Videos
-                </Text>
+                </Text> 
 
                 <Trending posts={latestPosts ?? []} />
               </View>

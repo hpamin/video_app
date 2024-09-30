@@ -3,33 +3,18 @@ import React, { useEffect, useState } from 'react'
 import { ResizeMode, Video } from 'expo-av';
 import imgPlaying from '../assets/image/play.png'
 import { FontAwesome } from '@expo/vector-icons';
-import { updateSavedStatus } from '../lib/appwrite';
+import { useGlobalContext } from '../context/GlobalProvider';
 
-const VideoCard = ({video: { $id: videoId ,title, thumbnail, video, creator: { username, avatar, $id: userId, }, saved }}) => {
- 
-    const [isSaved, setIsSaved] = useState(saved)
+const VideoCard = ({video: { $id: videoId ,title, thumbnail, video, creator: { username, avatar, $id: userId, }}, savedInfo}) => {
+
+    const {handelSave} = useGlobalContext()
     const [play, setPlay] = useState(false)
-
-    const handelSave = async (videoId, userId) => {
-        try {
-            if (isSaved === null || !isSaved) {
-                await updateSavedStatus(videoId, userId);
-                setIsSaved(true)
-            }else{
-                await updateSavedStatus(videoId, userId = null);
-                setIsSaved(false)
-            };
-        } catch (error) {
-            throw new Error(error);
-        }
-    }
+    const [isaved, setIsaved] = useState(savedInfo)
 
     useEffect(() => {
-        console.log("saved: ", saved);
-        
-        setIsSaved(saved)
-    }, [saved])
-
+        setIsaved(savedInfo)
+    }, [savedInfo]) 
+    
   return (
     <View className=" flex-col items-center px-4 mb-14  py-2">
         <View className="flex-row gap-3 items-start border-t border-primary-300 ">
@@ -47,11 +32,12 @@ const VideoCard = ({video: { $id: videoId ,title, thumbnail, video, creator: { u
                     <Text className="text-xs text-gray-100 font-Poppins" numberOfLines={1}> {username} </Text>
                 </View>
             </View>
-
-            <TouchableOpacity className="pt-2" activeOpacity={0.7} onPress={() => handelSave(videoId, userId)} >
-                {isSaved ?
+  
+            <TouchableOpacity className="pt-2" activeOpacity={0.7} onPress={() => {handelSave(videoId, userId, savedInfo, setIsaved) }} >
+                {console.log("mmd gholi:",isaved)}
+                {isaved ?
                     <FontAwesome name="bookmark" size={30} color="white" />
-                    :
+                    : 
                     <FontAwesome name="bookmark-o" size={30} color="white"/>
                 }
             </TouchableOpacity>
